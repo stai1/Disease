@@ -122,7 +122,7 @@ document.getElementById("start").addEventListener("click",
     disease.reset();
     updateView();
   }
-)
+);
 
 document.getElementById("end").addEventListener("click",
   () => {
@@ -130,7 +130,7 @@ document.getElementById("end").addEventListener("click",
     disease.run();
     updateView();
   }
-)
+);
 
 document.getElementById("prev").addEventListener("click",
   () => {
@@ -138,7 +138,7 @@ document.getElementById("prev").addEventListener("click",
     disease.previous();
     updateView();
   }
-)
+);
 
 document.getElementById("next").addEventListener("click",
   () => {
@@ -146,8 +146,22 @@ document.getElementById("next").addEventListener("click",
     disease.step();
     updateView();
   }
-)
+);
 
-document.getElementById("create").addEventListener("click",
+document.getElementById("population").addEventListener("change",
   create
-)
+);
+document.getElementById("rate").addEventListener("change",
+  create
+);
+document.getElementById("recovery").addEventListener("change",
+  create
+);
+
+document.getElementById("social-distance").addEventListener("change",
+  () => {
+    let value = parseFloat((<HTMLInputElement>document.getElementById("social-distance")).value);
+
+    (<HTMLInputElement>document.getElementById("social-distance")).value = (value >= 1 ? value : 1).toString();
+  }
+);
