@@ -44,6 +44,8 @@ var chart = new Chart(ctx, {
     },
     hover: {
       animationDuration: 0,
+      mode: 'index',
+      intersect: false,
     },
     responsiveAnimationDuration: 0,
     scales: {
@@ -78,8 +80,9 @@ var chart = new Chart(ctx, {
       callbacks: {
         title: function(tooltipItem, data) {
           return "Time " + tooltipItem[0]['index'];
-        }
+        },
       },
+      mode: 'index',
       intersect: false
     },
   },
