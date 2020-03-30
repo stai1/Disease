@@ -165,3 +165,7 @@ document.getElementById("social-distance").addEventListener("change",
     (<HTMLInputElement>document.getElementById("social-distance")).value = (value >= 1 ? value : 1).toString();
   }
 );
+
+document.getElementById("rerun").addEventListener("click",
+  create
+);

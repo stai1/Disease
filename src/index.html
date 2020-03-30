@@ -21,12 +21,12 @@
               <a class="unstyled" target="_blank" href="https://en.wikipedia.org/wiki/Basic_reproduction_number">R<sub>0</sub></a>:
               <span class="tooltiptext below">Basic reproduction number</span>
             </label>
-            <input id="rate" value="2">
+            <input id="rate" value="4">
           </span>
           <span>
             <label class="tooltip">
               Recovery time:
-              <span class="tooltiptext below">Time for infected to remain contagious</span>
+              <span class="tooltiptext below">Time that infected remain contagious</span>
             </label>
             <input id="recovery" value="4">
           </span>
@@ -59,7 +59,8 @@
             Social distance:
             <span class="tooltiptext above">Divides R<sub>0</sub></span>
           </label>
-          <input id="social-distance" value="1">
+          <input id="social-distance" value="2">
+          <button class="control" id="rerun"> << Rerun >> </button>
         </span>
         <span class="right">
           <button class="control" id="next"> Forward > </button>
