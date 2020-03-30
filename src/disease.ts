@@ -72,9 +72,9 @@ export class Disease {
 
   public previous() {
     if(this.history.length > 1) {
-      this.setState(this.history[this.history.length-1])
       this.stats.pop();
       this.history.pop();
+      this.setState(this.history[this.history.length-1]);
     }
 
 
@@ -97,9 +97,9 @@ export class Disease {
       this.currentInfectedRotation.unshift(newCases);
 
       this.totalCases += newCases;
-
-      this.pushData();
+      
       ++this.time;
+      this.pushData();
     }
     return this.stepData;
   }
