@@ -21176,7 +21176,13 @@ document.getElementById("next").addEventListener("click", function () {
   disease.step();
   updateView();
 });
-document.getElementById("create").addEventListener("click", create);
+document.getElementById("population").addEventListener("change", create);
+document.getElementById("rate").addEventListener("change", create);
+document.getElementById("recovery").addEventListener("change", create);
+document.getElementById("social-distance").addEventListener("change", function () {
+  var value = parseFloat(document.getElementById("social-distance").value);
+  document.getElementById("social-distance").value = (value >= 1 ? value : 1).toString();
+});
 },{"chart.js":"../node_modules/chart.js/dist/Chart.js","./disease":"disease.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -21205,7 +21211,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57448" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57537" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
