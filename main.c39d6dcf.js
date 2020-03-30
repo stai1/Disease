@@ -21075,7 +21075,9 @@ var chart = new chart_js_1.default(ctx, {
       }
     },
     hover: {
-      animationDuration: 0
+      animationDuration: 0,
+      mode: 'index',
+      intersect: false
     },
     responsiveAnimationDuration: 0,
     scales: {
@@ -21108,6 +21110,7 @@ var chart = new chart_js_1.default(ctx, {
           return "Time " + tooltipItem[0]['index'];
         }
       },
+      mode: 'index',
       intersect: false
     }
   }
@@ -21202,7 +21205,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55681" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57448" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
