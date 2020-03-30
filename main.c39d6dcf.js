@@ -20954,9 +20954,9 @@ function () {
 
   Disease.prototype.previous = function () {
     if (this.history.length > 1) {
-      this.setState(this.history[this.history.length - 1]);
       this.stats.pop();
       this.history.pop();
+      this.setState(this.history[this.history.length - 1]);
     }
   };
 
@@ -20974,8 +20974,8 @@ function () {
       this.currentInfectedRotation.pop();
       this.currentInfectedRotation.unshift(newCases);
       this.totalCases += newCases;
-      this.pushData();
       ++this.time;
+      this.pushData();
     }
 
     return this.stepData;
@@ -21183,6 +21183,7 @@ document.getElementById("social-distance").addEventListener("change", function (
   var value = parseFloat(document.getElementById("social-distance").value);
   document.getElementById("social-distance").value = (value >= 1 ? value : 1).toString();
 });
+document.getElementById("rerun").addEventListener("click", create);
 },{"chart.js":"../node_modules/chart.js/dist/Chart.js","./disease":"disease.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -21211,7 +21212,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57537" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49316" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
