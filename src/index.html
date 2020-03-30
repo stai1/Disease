@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Disease</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <div class="app-container">
+
+      <div class="row">
+        <span class="left">
+          <span>
+            <label>
+              Population:
+            </label>
+            <input id="population" value="100000" style="width:12ch">
+          </span>
+          <span>
+            <label class="tooltip" style="border-bottom: 1px dotted black">
+              <a class="unstyled" target="_blank" href="https://en.wikipedia.org/wiki/Basic_reproduction_number">R<sub>0</sub></a>:
+              <span class="tooltiptext below">Basic reproduction number</span>
+            </label>
+            <input id="rate" value="2">
+          </span>
+          <span>
+            <label class="tooltip">
+              Recovery time:
+              <span class="tooltiptext below">Time for infected to remain contagious</span>
+            </label>
+            <input id="recovery" value="4">
+          </span>
+          <button id="create">New Disease</button>
+        </span>
+
+      </div>
+
+      <div class="chart-row">
+        <div class="chart-container">
+          <div class="above-chart">
+            <span class="left">
+              Time: <span id="time"></span>
+            </span>
+            <span class="right">
+              Total: <span id="total"></span>
+              New: <span id="new"></span>
+              Sick: <span id="sick"></span>
+            </span>
+          </div>
+          <canvas id="chart"></canvas>
+        </div>
+      </div>
+      <div class="row">
+        <span class="left">
+          <button class="control" id="start"> << </button>
+          <button class="control" id="prev"> < </button>
+        </span>
+        <span class="center">
+          <label class="tooltip">
+            Social distance:
+            <span class="tooltiptext above">Divides R<sub>0</sub></span>
+          </label>
+          <input id="social-distance" value="1">
+        </span>
+        <span class="right">
+          <button class="control" id="next"> > </button>
+          <button class="control" id="end"> >> </button>
+        </span>
+      </div>
+    </div>
+    <script src="main.ts">
+    </script>
+  </body>
+</html>
