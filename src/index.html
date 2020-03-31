@@ -52,12 +52,15 @@
       <div class="row">
         <span class="left">
           <button class="control" id="start"> << Reset </button>
-          <button class="control" id="prev"> < Back </button>
+          <button class="control tooltip" id="prev"> 
+            < Back
+            <span class="tooltiptext above">Go back and change history. Double-click on chart to set time.</span>
+          </button>
         </span>
         <span class="center">
           <label class="tooltip">
             Social distance:
-            <span class="tooltiptext above">Divides R<sub>0</sub></span>
+            <span class="tooltiptext above">Divides R<sub>0</sub>. Disease spread is unsustainable for values > R<sub>0</sub>.</span>
           </label>
           <input id="social-distance" value="2">
           <button class="control" id="rerun"> << Rerun >> </button>
