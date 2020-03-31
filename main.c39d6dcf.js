@@ -21244,7 +21244,7 @@ document.getElementById("population").addEventListener("change", function () {
 document.getElementById("rate").addEventListener("change", function () {
   var element = document.getElementById("rate");
   rate = isNaN(parseFloat(element.value)) ? rate : parseFloat(element.value);
-  rate = Math.min(Math.max(recovery, 1), 1000);
+  rate = Math.min(Math.max(rate, 1), 1000);
   element.value = rate.toString();
   create();
 });
@@ -21290,7 +21290,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63407" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65086" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
