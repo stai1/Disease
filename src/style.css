@@ -96,3 +96,20 @@ button.control {
   font-family: consolas;
   font-size: 14pt;
 }
+
+.modal {
+  position: fixed;
+  height: 80vh;
+  width: 80vw;
+  top: 10vh;
+  left: 10vw;
+  margin: 0;
+  padding: 0;
+  z-index: 2;
+  overflow-y: auto;
+}
+
+.modal-content {
+  margin: 20px;
+  text-align: left;
+}
