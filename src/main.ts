@@ -1,8 +1,12 @@
 import Chart from 'chart.js';
 import { Disease } from './disease';
 
-var ctx = (<HTMLCanvasElement> document.getElementById('chart')).getContext('2d');
-var chart = new Chart(ctx, {
+const DOUBLE_CLICK_MILLIS = 400;
+let mouseX: number;
+let mouseY: number;
+let mouseTime: number;
+let ctx = (<HTMLCanvasElement> document.getElementById('chart')).getContext('2d');
+let chart = new Chart(ctx, {
   type: 'line',
   data: {
     datasets: [
@@ -47,6 +51,23 @@ var chart = new Chart(ctx, {
       mode: 'index',
       intersect: false,
     },
+    onClick: function(pointerEvent: PointerEvent, chartElement) {
+      pointerEvent.timeStamp
+      if(mouseX === pointerEvent.x && mouseY === pointerEvent.y && pointerEvent.timeStamp - mouseTime < DOUBLE_CLICK_MILLIS) { // on double click
+        mouseX = null;
+        mouseY = null;
+        let index = chartElement[0] && chartElement[0]._index;
+        if(index) {
+          disease.goToTime(index);
+          updateView();
+        }
+      }
+      else {
+        mouseX = pointerEvent.x;
+        mouseY = pointerEvent.y;
+      }
+      mouseTime = pointerEvent.timeStamp;
+    },
     responsiveAnimationDuration: 0,
     scales: {
       xAxes: [
@@ -88,32 +109,45 @@ var chart = new Chart(ctx, {
   },
 });
 
+function handleClick(event: MouseEvent) {
+  let activeElement = chart.getElementAtEvent(event);
+  console.log(activeElement);
+}
 
-let population = 10000;
-let rate = 5;
 
-var disease;
+
+let population = 100000;
+let rate = 4;
+let recovery = 6;
+let socialDistance = 2;
+
+let disease: Disease;
 create();
 
 function create() {
-  let population = parseInt((<HTMLInputElement>document.getElementById("population")).value);
-  let rate = parseFloat((<HTMLInputElement>document.getElementById("rate")).value);
-  let socialDistance = parseFloat((<HTMLInputElement>document.getElementById("social-distance")).value);
-  let recovery = parseInt((<HTMLInputElement>document.getElementById("recovery")).value);
   disease = new Disease(population, rate, socialDistance, recovery);
   disease.run();
   updateView();
 }
 
 function updateView() {
+  // update chart
   chart.data.datasets[0].data = disease.allData.map(step => { return { x: step.time, y: step.total } });
   chart.data.datasets[1].data = disease.allData.map(step => { return { x: step.time, y: step.new } });
   chart.data.datasets[2].data = disease.allData.map(step => { return { x: step.time, y: step.current } });
   chart.update();
+
+  // update stats display
   document.getElementById("new").innerHTML = disease.stepData.new.toString();
   document.getElementById("sick").innerHTML = disease.stepData.current.toString();
   document.getElementById("total").innerHTML = disease.stepData.total.toString();
   document.getElementById("time").innerHTML = disease.stepData.time.toString();
+
+  // update button disabled
+  (<HTMLButtonElement> document.getElementById("start")).disabled = disease.time === 0;
+  (<HTMLButtonElement> document.getElementById("end")).disabled = !disease.active;
+  (<HTMLButtonElement> document.getElementById("prev")).disabled = disease.time === 0;
+  (<HTMLButtonElement> document.getElementById("next")).disabled = !disease.active;
 }
 
 document.getElementById("start").addEventListener("click",
@@ -149,20 +183,39 @@ document.getElementById("next").addEventListener("click",
 );
 
 document.getElementById("population").addEventListener("change",
-  create
+  () => {
+    let element = <HTMLInputElement> document.getElementById("population");
+    population = isNaN(parseInt(element.value)) ? population : parseInt(element.value);
+    population = Math.min(Math.max(population, 100), 10000000000);
+    element.value = population.toString();
+    create();
+  }
 );
 document.getElementById("rate").addEventListener("change",
-  create
+  () => {
+    let element = <HTMLInputElement> document.getElementById("rate");
+    rate = isNaN(parseFloat(element.value)) ? rate : parseFloat(element.value);
+    rate = Math.min(Math.max(recovery, 1), 1000);
+    element.value = rate.toString();
+    create();
+  }
 );
 document.getElementById("recovery").addEventListener("change",
-  create
+  () => {
+    let element = <HTMLInputElement> document.getElementById("recovery");
+    recovery = isNaN(parseInt(element.value)) ? recovery : parseInt(element.value);
+    recovery = Math.min(Math.max(recovery, 1), 20);
+    element.value = recovery.toString();
+    create();
+  }
 );
 
 document.getElementById("social-distance").addEventListener("change",
   () => {
-    let value = parseFloat((<HTMLInputElement>document.getElementById("social-distance")).value);
-
-    (<HTMLInputElement>document.getElementById("social-distance")).value = (value >= 1 ? value : 1).toString();
+    let element = <HTMLInputElement> document.getElementById("social-distance");
+    socialDistance = isNaN(parseFloat(element.value)) ? socialDistance : parseFloat(element.value);
+    socialDistance = Math.max(socialDistance, 1);
+    element.value = socialDistance.toString();
   }
 );
 

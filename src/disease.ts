@@ -14,7 +14,7 @@ export interface DiseaseState {
 
 export class Disease {
   private residual: number = 0;
-  private time: number = 0;
+  private t: number = 0;
   private stats: StepData[] = [];
   private history: DiseaseState[] = [];
   private currentInfectedRotation: number[];
@@ -26,6 +26,7 @@ export class Disease {
     public socialDistance: number = 1,
     private contagiousTicks: number = 1,
     seed: number = 1,
+    private lengthCap = 2000,
     ) {
     this.currentInfectedRotation = new Array(contagiousTicks).fill(0);
     this.infect(seed);
@@ -38,14 +39,14 @@ export class Disease {
         total: this.totalCases,
         new: this.currentInfectedRotation[0],
         current: this.currentInfected,
-        time: this.time,
+        time: this.t,
       }
     );
     this.history.push(
       {
         total: this.totalCases,
         currentInfectedRotation: this.currentInfectedRotation.slice(),
-        time: this.time,
+        time: this.t,
         residual: this.residual,
       }
     )
@@ -67,7 +68,7 @@ export class Disease {
     this.totalCases = state.total;
     this.currentInfectedRotation = state.currentInfectedRotation.slice();
     this.residual = state.residual;
-    this.time = state.time;
+    this.t = state.time;
   }
 
   public previous() {
@@ -98,7 +99,7 @@ export class Disease {
 
       this.totalCases += newCases;
       
-      ++this.time;
+      ++this.t;
       this.pushData();
     }
     return this.stepData;
@@ -110,8 +111,19 @@ export class Disease {
     return this.allData;
   }
 
+  public goToTime(t: number) {
+    if(t === this.t)
+      return this.allData;
+    let direction = t > this.t ? 1 : -1;
+    if(t > this.t) while(this.t < t && this.active)
+      this.step();
+    else while(this.t > t && this.t > 0)
+      this.previous();
+    return this.allData;
+  }
+
   public get active(): boolean {
-    return this.currentInfected > 0;
+    return this.currentInfected > 0 && this.t <= this.lengthCap;
   }
 
   private get currentInfected(): number {
@@ -124,6 +136,10 @@ export class Disease {
 
   public get allData(): StepData[] {
     return this.stats;
+  }
+
+  public get time(): number {
+    return this.t;
   }
   
 }
