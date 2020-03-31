@@ -195,7 +195,7 @@ document.getElementById("rate").addEventListener("change",
   () => {
     let element = <HTMLInputElement> document.getElementById("rate");
     rate = isNaN(parseFloat(element.value)) ? rate : parseFloat(element.value);
-    rate = Math.min(Math.max(recovery, 1), 1000);
+    rate = Math.min(Math.max(rate, 1), 1000);
     element.value = rate.toString();
     create();
   }
