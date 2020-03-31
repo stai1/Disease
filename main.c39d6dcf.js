@@ -20888,7 +20888,7 @@ Object.defineProperty(exports, "__esModule", {
 var Disease =
 /** @class */
 function () {
-  function Disease(population, rate, socialDistance, contagiousTicks, seed) {
+  function Disease(population, rate, socialDistance, contagiousTicks, seed, lengthCap) {
     if (socialDistance === void 0) {
       socialDistance = 1;
     }
@@ -20901,12 +20901,17 @@ function () {
       seed = 1;
     }
 
+    if (lengthCap === void 0) {
+      lengthCap = 2000;
+    }
+
     this.population = population;
     this.rate = rate;
     this.socialDistance = socialDistance;
     this.contagiousTicks = contagiousTicks;
+    this.lengthCap = lengthCap;
     this.residual = 0;
-    this.time = 0;
+    this.t = 0;
     this.stats = [];
     this.history = [];
     this.totalCases = 0;
@@ -20920,12 +20925,12 @@ function () {
       total: this.totalCases,
       new: this.currentInfectedRotation[0],
       current: this.currentInfected,
-      time: this.time
+      time: this.t
     });
     this.history.push({
       total: this.totalCases,
       currentInfectedRotation: this.currentInfectedRotation.slice(),
-      time: this.time,
+      time: this.t,
       residual: this.residual
     });
   };
@@ -20949,7 +20954,7 @@ function () {
     this.totalCases = state.total;
     this.currentInfectedRotation = state.currentInfectedRotation.slice();
     this.residual = state.residual;
-    this.time = state.time;
+    this.t = state.time;
   };
 
   Disease.prototype.previous = function () {
@@ -20974,7 +20979,7 @@ function () {
       this.currentInfectedRotation.pop();
       this.currentInfectedRotation.unshift(newCases);
       this.totalCases += newCases;
-      ++this.time;
+      ++this.t;
       this.pushData();
     }
 
@@ -20989,9 +20994,20 @@ function () {
     return this.allData;
   };
 
+  Disease.prototype.goToTime = function (t) {
+    if (t === this.t) return this.allData;
+    var direction = t > this.t ? 1 : -1;
+    if (t > this.t) while (this.t < t && this.active) {
+      this.step();
+    } else while (this.t > t && this.t > 0) {
+      this.previous();
+    }
+    return this.allData;
+  };
+
   Object.defineProperty(Disease.prototype, "active", {
     get: function get() {
-      return this.currentInfected > 0;
+      return this.currentInfected > 0 && this.t <= this.lengthCap;
     },
     enumerable: true,
     configurable: true
@@ -21019,6 +21035,13 @@ function () {
     enumerable: true,
     configurable: true
   });
+  Object.defineProperty(Disease.prototype, "time", {
+    get: function get() {
+      return this.t;
+    },
+    enumerable: true,
+    configurable: true
+  });
   return Disease;
 }();
 
@@ -21040,6 +21063,10 @@ var chart_js_1 = __importDefault(require("chart.js"));
 
 var disease_1 = require("./disease");
 
+var DOUBLE_CLICK_MILLIS = 400;
+var mouseX;
+var mouseY;
+var mouseTime;
 var ctx = document.getElementById('chart').getContext('2d');
 var chart = new chart_js_1.default(ctx, {
   type: 'line',
@@ -21079,6 +21106,26 @@ var chart = new chart_js_1.default(ctx, {
       mode: 'index',
       intersect: false
     },
+    onClick: function onClick(pointerEvent, chartElement) {
+      pointerEvent.timeStamp;
+
+      if (mouseX === pointerEvent.x && mouseY === pointerEvent.y && pointerEvent.timeStamp - mouseTime < DOUBLE_CLICK_MILLIS) {
+        // on double click
+        mouseX = null;
+        mouseY = null;
+        var index = chartElement[0] && chartElement[0]._index;
+
+        if (index) {
+          disease.goToTime(index);
+          updateView();
+        }
+      } else {
+        mouseX = pointerEvent.x;
+        mouseY = pointerEvent.y;
+      }
+
+      mouseTime = pointerEvent.timeStamp;
+    },
     responsiveAnimationDuration: 0,
     scales: {
       xAxes: [{
@@ -21115,22 +21162,27 @@ var chart = new chart_js_1.default(ctx, {
     }
   }
 });
-var population = 10000;
-var rate = 5;
+
+function handleClick(event) {
+  var activeElement = chart.getElementAtEvent(event);
+  console.log(activeElement);
+}
+
+var population = 100000;
+var rate = 4;
+var recovery = 6;
+var socialDistance = 2;
 var disease;
 create();
 
 function create() {
-  var population = parseInt(document.getElementById("population").value);
-  var rate = parseFloat(document.getElementById("rate").value);
-  var socialDistance = parseFloat(document.getElementById("social-distance").value);
-  var recovery = parseInt(document.getElementById("recovery").value);
   disease = new disease_1.Disease(population, rate, socialDistance, recovery);
   disease.run();
   updateView();
 }
 
 function updateView() {
+  // update chart
   chart.data.datasets[0].data = disease.allData.map(function (step) {
     return {
       x: step.time,
@@ -21149,11 +21201,17 @@ function updateView() {
       y: step.current
     };
   });
-  chart.update();
+  chart.update(); // update stats display
+
   document.getElementById("new").innerHTML = disease.stepData.new.toString();
   document.getElementById("sick").innerHTML = disease.stepData.current.toString();
   document.getElementById("total").innerHTML = disease.stepData.total.toString();
-  document.getElementById("time").innerHTML = disease.stepData.time.toString();
+  document.getElementById("time").innerHTML = disease.stepData.time.toString(); // update button disabled
+
+  document.getElementById("start").disabled = disease.time === 0;
+  document.getElementById("end").disabled = !disease.active;
+  document.getElementById("prev").disabled = disease.time === 0;
+  document.getElementById("next").disabled = !disease.active;
 }
 
 document.getElementById("start").addEventListener("click", function () {
@@ -21176,12 +21234,32 @@ document.getElementById("next").addEventListener("click", function () {
   disease.step();
   updateView();
 });
-document.getElementById("population").addEventListener("change", create);
-document.getElementById("rate").addEventListener("change", create);
-document.getElementById("recovery").addEventListener("change", create);
+document.getElementById("population").addEventListener("change", function () {
+  var element = document.getElementById("population");
+  population = isNaN(parseInt(element.value)) ? population : parseInt(element.value);
+  population = Math.min(Math.max(population, 100), 10000000000);
+  element.value = population.toString();
+  create();
+});
+document.getElementById("rate").addEventListener("change", function () {
+  var element = document.getElementById("rate");
+  rate = isNaN(parseFloat(element.value)) ? rate : parseFloat(element.value);
+  rate = Math.min(Math.max(recovery, 1), 1000);
+  element.value = rate.toString();
+  create();
+});
+document.getElementById("recovery").addEventListener("change", function () {
+  var element = document.getElementById("recovery");
+  recovery = isNaN(parseInt(element.value)) ? recovery : parseInt(element.value);
+  recovery = Math.min(Math.max(recovery, 1), 20);
+  element.value = recovery.toString();
+  create();
+});
 document.getElementById("social-distance").addEventListener("change", function () {
-  var value = parseFloat(document.getElementById("social-distance").value);
-  document.getElementById("social-distance").value = (value >= 1 ? value : 1).toString();
+  var element = document.getElementById("social-distance");
+  socialDistance = isNaN(parseFloat(element.value)) ? socialDistance : parseFloat(element.value);
+  socialDistance = Math.max(socialDistance, 1);
+  element.value = socialDistance.toString();
 });
 document.getElementById("rerun").addEventListener("click", create);
 },{"chart.js":"../node_modules/chart.js/dist/Chart.js","./disease":"disease.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
@@ -21212,7 +21290,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58978" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63407" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

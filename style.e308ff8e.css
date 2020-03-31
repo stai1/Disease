@@ -76,6 +76,7 @@ a.unstyled {
 }
 
 .tooltip:hover .tooltiptext {
+  font-size: 12pt;
   visibility: visible;
   max-width:700px;
 }
